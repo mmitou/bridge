@@ -1,8 +1,12 @@
 PROGRAM := bridge
 SRCS := $(wildcard *.c)
+HDRS := $(wildcard *.h)
 OBJS := $(SRCS:.c=.o)
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror -Wpedantic -std=c11 -D_DEFAULT_SOURCE
+STYLE := "{BasedOnStyle: llvm, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, KeepEmptyLinesAtTheStartOfBlocks: false}"
+        
+
 
 .PHONY: all
 all : $(PROGRAM)
@@ -12,6 +16,10 @@ $(PROGRAM) : $(OBJS)
 
 %.o : %.c
 	$(CC) $(CFLAGS) -c $<
+
+.PHONY: format
+format: $(SRCS)
+	clang-format -style=$(STYLE) -i $(SRCS) $(HDRS)
 
 .PHONY: clean
 clean:
