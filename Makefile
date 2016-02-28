@@ -5,7 +5,6 @@ OBJS := $(SRCS:.c=.o)
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror -Wpedantic -std=c11 -D_DEFAULT_SOURCE
 STYLE := "{BasedOnStyle: llvm, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, KeepEmptyLinesAtTheStartOfBlocks: false}"
-        
 
 
 .PHONY: all
