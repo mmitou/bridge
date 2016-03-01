@@ -40,7 +40,8 @@ bool bind_interface(const int fd, const char *const device_name,
   return true;
 }
 
-bool set_promiscous_mode(const int fd, const char *const ifname, char **error_message) {
+bool set_promiscous_mode(const int fd, const char *const ifname,
+                         char **error_message) {
   // ネットワークデバイスに入ってきたパケットを
   // 無差別(promiscuous)モードで全て見えるようにする。
 
@@ -60,7 +61,7 @@ bool set_promiscous_mode(const int fd, const char *const ifname, char **error_me
 
 bool init_raw_socket(const char *const ifname, int *fd) {
   if (strlen(ifname) > IFNAMSIZ) {
-    goto PRECONDITION_ERROR;
+    goto PRECONDITION_FAILED;
   }
 
   char *error_message = NULL;
@@ -79,12 +80,12 @@ bool init_raw_socket(const char *const ifname, int *fd) {
 
   return true;
 
- ERROR:
+ERROR:
   perror(error_message);
   close(*fd);
   return false;
 
- PRECONDITION_ERROR:
+PRECONDITION_FAILED:
   fprintf(stderr, "device_name length is over IFNAMSIZ\n");
   return false;
 }
