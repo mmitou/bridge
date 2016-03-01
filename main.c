@@ -6,6 +6,10 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "arg error\n");
     return 1;
   }
-  bridge((const char **const)(&argv[1]), argc -1);
+
+  if(!bridge((const char **const)(&argv[1]), argc -1)) {
+    return 1;
+  }
+
   return 0;
 }
