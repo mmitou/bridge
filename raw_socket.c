@@ -83,6 +83,7 @@ bool init_raw_socket(const char *const ifname, int *fd) {
 ERROR:
   perror(error_message);
   close(*fd);
+  *fd = -1;
   return false;
 
 PRECONDITION_FAILED:
