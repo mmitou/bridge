@@ -4,7 +4,8 @@
 
 int main(int argc, char **argv) {
   (void)argc;
-  int fd = init_raw_socket(argv[1]);
+  int fd;
+  init_raw_socket(argv[1], &fd);
   printf("%d\n", fd);
   close(fd);
 
