@@ -1,13 +1,11 @@
+#include "bridge.h"
 #include <stdio.h>
-#include <unistd.h> // close
-#include "raw_socket.h"
 
-int main(int argc, char **argv) {
-  (void)argc;
-  int fd;
-  init_raw_socket(argv[1], &fd);
-  printf("%d\n", fd);
-  close(fd);
-
+int main(int argc, char *argv[]) {
+  if(argc < 2) {
+    fprintf(stderr, "arg error\n");
+    return 1;
+  }
+  bridge((const char **const)(&argv[1]), argc -1);
   return 0;
 }
