@@ -3,6 +3,6 @@
 
 #include <stdbool.h>
 
-bool bridge(const char * const ifnames[], const int length);
+bool bridge(const char *const ifnames[], const int length);
 
 #endif

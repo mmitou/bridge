@@ -12,13 +12,14 @@
 
 int new_raw_socket(int *fd) {
   *fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-  if(*fd < 0) {
+  if (*fd < 0) {
     return raw_socket_fail_socket;
   }
   return raw_socket_success;
 }
 
-enum raw_socket_result bind_interface(const int fd, const char *const device_name) {
+enum raw_socket_result bind_interface(const int fd,
+                                      const char *const device_name) {
   // インタフェース名からインタフェースインデックスを取得する。
   const unsigned int ifindex = if_nametoindex(device_name);
   if (ifindex < 1) {
@@ -71,9 +72,9 @@ struct raw_socket_option init_raw_socket(const char *const ifname) {
     goto ERROR;
   }
 
-  return (struct raw_socket_option) {raw_socket_success, fd};
+  return (struct raw_socket_option){raw_socket_success, fd};
 
 ERROR:
   close(fd);
-  return (struct raw_socket_option) {result, 0};
+  return (struct raw_socket_option){result, 0};
 }
