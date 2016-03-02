@@ -1,4 +1,4 @@
-#include "bridge.h"
+#include "Bridge.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  if (!bridge((const char **const)(&argv[1]), argc - 1)) {
+  if (!Bridge_bridge((const char **const)(&argv[1]), argc - 1)) {
     return 1;
   }
 

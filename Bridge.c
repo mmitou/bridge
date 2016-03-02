@@ -1,14 +1,15 @@
-#include "bridge.h"
-#include "raw_socket.h"
+#include "Bridge.h"
+#include "RawSocket.h"
 #include <unistd.h> // close
 #include <stdio.h>
 
-int new_raw_sockets(const char *const ifnames[], const int length, int *fds) {
+int initRawSockets(const char *const ifnames[], const int length, int *fds) {
   int i = 0;
 
   for (; i < length; ++i) {
-    struct raw_socket_option opt = init_raw_socket(ifnames[i]);
-    if (opt.result == raw_socket_success) {
+    struct RawSocket_OptionFileDescriptor opt =
+        RawSocket_initRawSocket(ifnames[i]);
+    if (opt.result == RawSocket_success) {
       fds[i] = opt.fd;
     } else {
       break;
@@ -18,11 +19,11 @@ int new_raw_sockets(const char *const ifnames[], const int length, int *fds) {
   return i;
 }
 
-bool bridge(const char *const ifnames[], const int length) {
+bool Bridge_bridge(const char *const ifnames[], const int length) {
   int fds[length];
   bool result = false;
 
-  const int len_of_fds = new_raw_sockets(ifnames, length, fds);
+  const int len_of_fds = initRawSockets(ifnames, length, fds);
   if (len_of_fds != length) {
     result = false;
     goto ERROR;
