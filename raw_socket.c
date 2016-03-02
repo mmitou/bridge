@@ -10,22 +10,19 @@
 #include <stdbool.h>         // bool, true, false
 #include "raw_socket.h"
 
-bool new_raw_socket(int *fd, char **error_message) {
-  if ((*fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0) {
-    *error_message = "socket";
-    *fd = 0;
-    return false;
+int new_raw_socket(int *fd) {
+  *fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+  if(*fd < 0) {
+    return raw_socket_fail_socket;
   }
-  return true;
+  return raw_socket_success;
 }
 
-bool bind_interface(const int fd, const char *const device_name,
-                    char **error_message) {
+enum raw_socket_result bind_interface(const int fd, const char *const device_name) {
   // インタフェース名からインタフェースインデックスを取得する。
   const unsigned int ifindex = if_nametoindex(device_name);
   if (ifindex < 1) {
-    *error_message = "if_nametoindex";
-    return false;
+    return raw_socket_fail_if_nametoindex;
   }
 
   // ソケットをインタフェースにバインドする。
@@ -33,60 +30,50 @@ bool bind_interface(const int fd, const char *const device_name,
                            .sll_protocol = htons(ETH_P_ALL),
                            .sll_ifindex = ifindex};
   if (bind(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-    *error_message = "bind";
-    return false;
+    return raw_socket_fail_bind;
   }
 
-  return true;
+  return raw_socket_success;
 }
 
-bool set_promiscous_mode(const int fd, const char *const ifname,
-                         char **error_message) {
+bool set_promiscous_mode(const int fd, const char *const ifname) {
   // ネットワークデバイスに入ってきたパケットを
   // 無差別(promiscuous)モードで全て見えるようにする。
 
   struct ifreq ifreq = {.ifr_name = {0}};
   strncpy(ifreq.ifr_name, ifname, IFNAMSIZ);
   if (ioctl(fd, SIOCGIFFLAGS, &ifreq) < 0) {
-    *error_message = "ioctl SIOCGIFFLAGS";
-    return false;
+    return raw_socket_fail_ioctl_SIOCGIFFLAGS;
   }
   ifreq.ifr_flags = ifreq.ifr_flags | IFF_PROMISC;
   if (ioctl(fd, SIOCSIFFLAGS, &ifreq) < 0) {
-    *error_message = "ioctl SIOCSIFFLAGS";
-    return false;
+    return raw_socket_fail_ioctl_SIOCSIFFLAGS;
   }
-  return true;
+  return raw_socket_success;
 }
 
-bool init_raw_socket(const char *const ifname, int *fd) {
+struct raw_socket_option init_raw_socket(const char *const ifname) {
+  int fd = 0;
+  RawSocketResult result = raw_socket_fail_precondition;
   if (strlen(ifname) > IFNAMSIZ) {
-    goto PRECONDITION_FAILED;
-  }
-
-  char *error_message = NULL;
-
-  if (!new_raw_socket(fd, &error_message)) {
     goto ERROR;
   }
 
-  if (!bind_interface(*fd, ifname, &error_message)) {
+  if ((result = new_raw_socket(&fd)) != raw_socket_success) {
     goto ERROR;
   }
 
-  if (!set_promiscous_mode(*fd, ifname, &error_message)) {
+  if ((result = bind_interface(fd, ifname)) != raw_socket_success) {
     goto ERROR;
   }
 
-  return true;
+  if ((result = set_promiscous_mode(fd, ifname)) != raw_socket_success) {
+    goto ERROR;
+  }
+
+  return (struct raw_socket_option) {raw_socket_success, fd};
 
 ERROR:
-  perror(error_message);
-  close(*fd);
-  *fd = -1;
-  return false;
-
-PRECONDITION_FAILED:
-  fprintf(stderr, "device_name length is over IFNAMSIZ\n");
-  return false;
+  close(fd);
+  return (struct raw_socket_option) {result, 0};
 }
