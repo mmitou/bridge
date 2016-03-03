@@ -15,6 +15,7 @@ typedef RawSocket_Result result;
 result newRawSocket(int *fd) {
   *fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
   if (*fd < 0) {
+    perror("socket");
     return RawSocket_fail_socket;
   }
   return RawSocket_success;
@@ -23,6 +24,7 @@ result newRawSocket(int *fd) {
 result bindInterface(const int fd, const char *const device_name) {
   const unsigned int ifindex = if_nametoindex(device_name);
   if (ifindex < 1) {
+    perror("if_nametoindex");
     return RawSocket_fail_if_nametoindex;
   }
 
@@ -31,6 +33,7 @@ result bindInterface(const int fd, const char *const device_name) {
                            .sll_protocol = htons(ETH_P_ALL),
                            .sll_ifindex = ifindex};
   if (bind(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+    perror("bind");
     return RawSocket_fail_bind;
   }
 
@@ -44,10 +47,12 @@ result setPromiscousMode(const int fd, const char *const ifname) {
   struct ifreq ifreq = {.ifr_name = {0}};
   strncpy(ifreq.ifr_name, ifname, IFNAMSIZ);
   if (ioctl(fd, SIOCGIFFLAGS, &ifreq) < 0) {
+    perror("ioctl SIOCGIFFLAGS");
     return RawSocket_fail_ioctl_SIOCGIFFLAGS;
   }
   ifreq.ifr_flags = ifreq.ifr_flags | IFF_PROMISC;
   if (ioctl(fd, SIOCSIFFLAGS, &ifreq) < 0) {
+    perror("ioctl SIOCSIFFLAGS");
     return RawSocket_fail_ioctl_SIOCSIFFLAGS;
   }
   return RawSocket_success;
