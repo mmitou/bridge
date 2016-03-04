@@ -20,7 +20,7 @@ int initRawSockets(const char *const ifnames[], const int length, int *fds) {
   return i;
 }
 
-bool send_packet(const int srcfd, const int *const fds,
+bool sendPacket(const int srcfd, const int *const fds,
                  const char *const ifnames[], const int length) {
   char buf[BUFSIZ];
   const ssize_t packet_size = read(srcfd, buf, sizeof(buf));
@@ -79,7 +79,7 @@ enum BridgeResult bridge(const int *const fds, const char *const ifnames[],
     }
 
     for (int i = 0; i < nfds; ++i) {
-      send_packet(events[i].data.fd, fds, ifnames, length);
+      sendPacket(events[i].data.fd, fds, ifnames, length);
     }
   }
 
