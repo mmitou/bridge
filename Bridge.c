@@ -1,5 +1,6 @@
 #include "Bridge.h"
 #include "RawSocket.h"
+#include "Print.h"
 #include <unistd.h> // close, write, read
 #include <stdio.h>
 #include <sys/epoll.h> // epoll_create, struct epoll_event
@@ -32,6 +33,7 @@ bool sendPacket(const int srcfd, const int *const fds,
   for (int i = 0; i < length; ++i) {
     if (srcfd != fds[i]) {
       printf("from %d, write %d(%s)\n", srcfd, fds[i], ifnames[i]);
+      Print_fprintEtherHeader(stdout, (const struct ether_header* const)buf);
       // write(fds[i], buf, packet_size);
       // perror(ifnames[i]);
     }
