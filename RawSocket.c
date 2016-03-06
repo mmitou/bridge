@@ -100,7 +100,8 @@ ERROR:
   return (struct RawSocket_OptionFileDescriptor){result, 0};
 }
 
-int RawSocket_initRawSockets(const char *const ifnames[], const int length, int *fds) {
+int RawSocket_initRawSockets(const char *const ifnames[], const int length,
+                             int *fds) {
   int i = 0;
 
   for (; i < length; ++i) {

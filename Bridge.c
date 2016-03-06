@@ -6,7 +6,7 @@
 #include <sys/epoll.h> // epoll_create, struct epoll_event
 
 bool sendPacket(const int srcfd, const int *const fds,
-                 const char *const ifnames[], const int length) {
+                const char *const ifnames[], const int length) {
   char buf[BUFSIZ];
   const ssize_t packet_size = read(srcfd, buf, sizeof(buf));
   if (packet_size < 0) {
@@ -17,7 +17,7 @@ bool sendPacket(const int srcfd, const int *const fds,
   for (int i = 0; i < length; ++i) {
     if (srcfd != fds[i]) {
       printf("from %d, write %d(%s)\n", srcfd, fds[i], ifnames[i]);
-      Print_fprintEtherHeader(stdout, (const struct ether_header* const)buf);
+      Print_fprintEtherHeader(stdout, (const struct ether_header *const)buf);
       // write(fds[i], buf, packet_size);
       // perror(ifnames[i]);
     }
