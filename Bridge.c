@@ -5,22 +5,6 @@
 #include <stdio.h>
 #include <sys/epoll.h> // epoll_create, struct epoll_event
 
-int initRawSockets(const char *const ifnames[], const int length, int *fds) {
-  int i = 0;
-
-  for (; i < length; ++i) {
-    struct RawSocket_OptionFileDescriptor opt =
-        RawSocket_initRawSocket(ifnames[i]);
-    if (opt.result == RawSocket_success) {
-      fds[i] = opt.fd;
-    } else {
-      break;
-    }
-  }
-
-  return i;
-}
-
 bool sendPacket(const int srcfd, const int *const fds,
                  const char *const ifnames[], const int length) {
   char buf[BUFSIZ];
@@ -98,7 +82,7 @@ bool Bridge_bridge(const char *const ifnames[], const int length) {
   int fds[length];
   bool result = false;
 
-  const int len_of_fds = initRawSockets(ifnames, length, fds);
+  const int len_of_fds = RawSocket_initRawSockets(ifnames, length, fds);
   if (len_of_fds != length) {
     result = false;
     goto ERROR;

@@ -10,6 +10,21 @@
 #include <stdbool.h>         // bool, true, false
 #include "RawSocket.h"
 
+typedef enum RawSocket_Result {
+  RawSocket_success,
+  RawSocket_fail_precondition,
+  RawSocket_fail_socket,
+  RawSocket_fail_if_nametoindex,
+  RawSocket_fail_bind,
+  RawSocket_fail_ioctl_SIOCGIFFLAGS,
+  RawSocket_fail_ioctl_SIOCSIFFLAGS
+} RawSocket_Result;
+
+struct RawSocket_OptionFileDescriptor {
+  RawSocket_Result result;
+  int fd;
+};
+
 typedef RawSocket_Result result;
 
 result newRawSocket(int *fd) {
@@ -83,4 +98,20 @@ RawSocket_initRawSocket(const char *const ifname) {
 ERROR:
   close(fd);
   return (struct RawSocket_OptionFileDescriptor){result, 0};
+}
+
+int RawSocket_initRawSockets(const char *const ifnames[], const int length, int *fds) {
+  int i = 0;
+
+  for (; i < length; ++i) {
+    struct RawSocket_OptionFileDescriptor opt =
+        RawSocket_initRawSocket(ifnames[i]);
+    if (opt.result == RawSocket_success) {
+      fds[i] = opt.fd;
+    } else {
+      break;
+    }
+  }
+
+  return i;
 }
